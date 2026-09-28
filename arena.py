@@ -23,6 +23,7 @@ import subprocess
 import sys
 import time
 
+SEED_BASE = int(os.environ.get("SEED_BASE", "1000"))
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 RESULT = re.compile(r"(team ([AB]) wins|draw) after (\d+) rounds")
 POINTS = re.compile(r"team ([AB]) points per turn: .* max ([\d.]+)M")
@@ -89,7 +90,7 @@ def main():
     jobs = []
     for mp in maps:
         for s in range(args.seeds):
-            seed = 1000 + s
+            seed = SEED_BASE + s
             jobs.append((mp, seed, "A"))   # bot1 la team A
             jobs.append((mp, seed, "B"))   # bot1 la team B
 
