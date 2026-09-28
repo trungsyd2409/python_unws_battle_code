@@ -4,7 +4,8 @@
 
 | Thư mục / file | Là gì |
 |---|---|
-| `v9/` | **Bot mạnh nhất hiện tại** = V8 + nuôi con chủ lực cuối trận. Nộp bản này |
+| `v10/` | **Bot mạnh nhất hiện tại** = V9 + né bẫy + "tên lửa" vào con chủ lực địch. Nộp bản này |
+| `v9/` | V8 + nuôi con chủ lực cuối trận |
 | `v8/` | Bot V8 của team, giữ lại để so sánh |
 | `smartbot/` | Bot đơn giản ban đầu (yếu hơn V8) |
 | `tools/replay_stats.py` | Đọc file `.replay` và in thống kê từng team (cần Node.js) |
@@ -24,14 +25,14 @@ python render.py maps/dilemma.map                      # xem map
 
 ## Kiểm tra bot mới có mạnh hơn bot cũ không
 
-1. Copy bot hiện tại thành bản mới, ví dụ `v9` sang `v10`.
-2. Chỉ sửa **một** thứ trong `v10/main.py` (một nút chỉnh hoặc một đoạn logic).
+1. Copy bot hiện tại thành bản mới, ví dụ `v10` sang `v11`.
+2. Chỉ sửa **một** thứ trong `v11/main.py` (một nút chỉnh hoặc một đoạn logic).
 3. Chạy:
    ```
-   python arena.py v10 v9 --seeds 2
+   python arena.py v11 v10 --seeds 2
    ```
 4. Đọc dòng kết quả cuối:
-   - `v10 MANH HON`: cận dưới của khoảng tin cậy 95% lớn hơn 50%. Giữ bản mới.
+   - `v11 MANH HON`: cận dưới của khoảng tin cậy 95% lớn hơn 50%. Giữ bản mới.
    - `Chua ket luan duoc`: chạy thêm seed (`--seeds 4`) hoặc bỏ thay đổi đó.
    - `YEU HON`: bỏ thay đổi.
 5. Luôn xem dòng `CPU max/luot` và giữ nó dưới khoảng 80M. Nếu lượt nào vượt 100M thì dragon đó chết.
@@ -79,6 +80,28 @@ V9 giữ nguyên V8 cho tới round 330, sau đó:
 
 Kết quả V9 đấu V8 (sandbox, đổi bên A/B): **31 thắng, 15 thua (67%, khoảng tin cậy 95% là 53–79%)**. Riêng các map kéo dài tới round 500, V9 thắng 15/20. Các nút chỉnh nằm ở `FEED_ROUND`, `MERGE_ROUND`, `FEED_MIN_UNITS`, `KEEPER_GUARD_LEN` trong `v9/main.py`.
 
+## V10 khác V9 ở đâu
+
+1. **Né bẫy.** Khoảng 100 con mỗi trận chết vì "hết đường", phần lớn vì trước đó đã bò vào ô chỉ còn 0–1 lối ra. V10 phạt những nước đi vào ô chỉ còn 1 lối ra, và phạt nặng hơn nếu mọi lối ra đều nằm cạnh đầu một con khác. Nếu buộc phải chết thì V10 đâm vào đầu địch bên cạnh (nếu có) để kéo nó chết theo. Riêng thay đổi này đạt 54,5% trước V9 sau 112 trận, chưa đủ ý nghĩa thống kê.
+2. **Tên lửa.** Từ round 300, con không phải con dài nhất của team (ngắn hơn con dài nhất ít nhất 3, biết qua sonar) được phép sprint thẳng vào đầu con dài của địch (từ 7 đốt nhìn thấy trở lên) nếu nằm trong tầm. Đổi một con vừa lấy con chủ lực của địch sẽ lật tiebreak.
+
+Kết quả V10 đấu V9: **128 thắng, 96 thua sau 224 trận (57,1%, khoảng tin cậy 95% là 50,6–63,4%, p = 0,019)**. Chạy trên 14 map, 8 seed, mỗi seed đấu 2 trận đổi bên.
+
+Các ý tưởng đã thử nhưng bị loại:
+
+| Ý tưởng | Kết quả trước V9 | Lý do |
+|---|---|---|
+| Kéo cả bầy đi săn con chủ lực địch và dọn dẹp khi đông hơn | 8 thắng, 12 thua | Con nhỏ bỏ việc nuôi, nên thua ở các trận tính độ dài |
+| Nuôi sớm hơn (round 300, gộp từ round 360) | 33 thắng, 37 thua | Giảm số con quá sớm |
+
+## Test nhanh
+
+Trong V9 và V10 không có hàm random hay đo thời gian. Vì vậy `--fast` (không sandbox) cho ra đúng kết quả như sandbox mà nhanh gấp khoảng 6 lần. Hãy dùng `--fast` để so sánh nhiều trận, sau đó chạy vài trận `--sandbox` để kiểm tra CPU:
+
+```
+SEED_BASE=1001 python arena.py v11 v10 --seeds 4 --fast     # Windows PowerShell: $env:SEED_BASE=1001
+```
+
 ## Học từ replay
 
 ```
@@ -91,5 +114,5 @@ Lệnh này in theo thời gian: số con, con dài nhất, nguyên nhân chết
 
 ```
 unswbc auth set bc_...
-unswbc submit v9 -n v9 -d "V8 + late-game feeding of the longest dragon"
+unswbc submit v10 -n v10 -d "V9 + trap avoidance + keeper missiles"
 ```
